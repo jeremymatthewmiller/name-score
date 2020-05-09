@@ -33,7 +33,8 @@ To start the application:
 ```shell script
 ./gradlew run --args='/fully/qualified/path/to/name/file.txt'
 ```
-If no file path argument is given, then the Name Score will run using the project's names.txt file.
+If no file path argument is given, then the Name Score will run using the project's [names.txt
+](https://github.com/jeremymatthewmiller/name-score/blob/master/src/main/resources/names.txt) file.
  
 To run the unit tests:
 ```shell script
