@@ -29,11 +29,16 @@ dependencies {
 
     // Use JUnit Jupiter Engine for testing.
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+
+    // For JUnit Jupiter parameterized testing.
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.6.0'
+
+    testCompile 'org.assertj:assertj-core:3.16.0'
 }
 
 application {
     // Define the main class for the application.
-    mainClassName = 'name.score.App'
+    mainClassName = 'name.score.NameScore'
 }
 
 test {
