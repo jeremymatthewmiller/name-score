@@ -3,113 +3,57 @@
  */
 package name.score;
 
+import name.score.services.ScoringService;
+import name.score.services.UploadService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 class NameScoreTest {
 
-    private static final String DEFAULT_TEST_FILE_PATH = "src/test/resources/names.txt";
+    @Mock
+    private ScoringService scoringService;
 
-    private NameScore nameScore = new NameScore();
+    @Mock
+    private UploadService uploadService;
 
-    @Test
-    void getFileFromCommandLineArgumentsShouldGetFileInCommandLineArgsIfExists() {
-        String[] commandLineArgs = {DEFAULT_TEST_FILE_PATH};
+    private NameScore nameScore;
 
-        try {
-            final Reader result = nameScore.getFileFromCommandLineArguments(commandLineArgs);
+    @BeforeEach
+    void beforeEach() {
+        initMocks(this);
 
-            assertThat(result).isNotNull();
-        } catch (IOException e) {
-            fail("getFileFromCommandLineArgumentsShouldGetFileInCommandLineArgsIfExists failed to create file from command line arguments");
-        }
+        nameScore = new NameScore(scoringService, uploadService);
     }
 
     @Test
-    void getFileFromCommandLineArgumentsShouldThrowExceptionWhenFileNotFound() {
-        String[] commandLineArgs = {"/this/does/not/exist.txt"};
-
-        assertThrows(IOException.class, () -> {
-            nameScore.getFileFromCommandLineArguments(commandLineArgs);
-        });
-    }
-
-    @Test
-    void parseNameFileShouldReturnNamesFromFileAsListOfNames() {
+    void getScoreShouldReturnTheScore() {
+        String path = "/some/path/to/a/file";
         Reader reader = new StringReader("\"JONATHAN\",\"JORDAN\",\"DONNIE\",\"DANNY\",\"JOEY\"");
+        List<String> names = List.of("JONATHAN", "JORDAN", "DONNIE", "DANNY", "JOEY");
+        int finalScore = 987;
+        String[] args = {path};
 
         try {
-            final List<String> result = nameScore.parseNameFile(reader);
+            when(uploadService.uploadRecords(path)).thenReturn(reader);
+            when(uploadService.parseNameFile(reader)).thenReturn(names);
+            when(scoringService.calculateScore(names)).thenReturn(finalScore);
 
-            assertThat(result).containsExactly("JONATHAN", "JORDAN", "DONNIE", "DANNY", "JOEY");
+            final int result = nameScore.getScore(args);
+
+            assertThat(result).isEqualTo(finalScore);
         } catch (IOException e) {
-            fail("parseNameFileShouldReturnNamesFromFileAsListOfNames failed to read the file contents");
+            fail();
         }
-    }
-
-    @Test
-    void parseNameFileShouldReturnEmptyNameListWhenFileIsEmpty() {
-        Reader reader = new StringReader("");
-
-        try {
-            final List<String> result = nameScore.parseNameFile(reader);
-
-            assertThat(result).isEmpty();
-        } catch (IOException e) {
-            fail("parseNameFileShouldReturnNamesFromFileAsListOfNames failed to read the file contents");
-        }
-    }
-
-    @ParameterizedTest
-    @MethodSource("exampleNames")
-    void calculateNameScoreShouldCalculateSumOfCharacters(final String name, final int expectedValue) {
-        final long result = nameScore.calculateNameScore(name, 1);
-
-        assertThat(result).isEqualTo(expectedValue);
-    }
-
-    static Stream<Arguments> exampleNames() {
-        return Stream.of(
-            arguments("A", 1),
-            arguments("Z", 26),
-            arguments("AAA", 3),
-            arguments("LINDA", 40),
-            arguments("JEREMY", 76),
-            arguments("jeremy", 0),
-            arguments("JER12345EMY", 76),
-            arguments("JER&^%$#EMY", 76),
-            arguments("JEREMY MILLER", 145)
-        );
-    }
-
-    @ParameterizedTest
-    @MethodSource("exampleNamesLists")
-    void calculateTotalScoreShouldCalculateScore(final List<String> names, final int expectedValue) {
-        final int result = nameScore.calculateTotalScore(names);
-
-        assertThat(result).isEqualTo(expectedValue);
-    }
-
-    static Stream<Arguments> exampleNamesLists() {
-        return Stream.of(
-            arguments(Arrays.asList(), 0),
-            arguments(Arrays.asList("AAA"), 3),
-            arguments(Arrays.asList("AAA", "LINDA", "Z"), 161),
-            arguments(Arrays.asList("MARY","PATRICIA","LINDA","BARBARA","VINCENZO","SHON","LYNWOOD","JERE","HAI"), 3194)
-        );
     }
 }
