@@ -56,4 +56,16 @@ class NameScoreTest {
             fail();
         }
     }
+
+    @Test
+    void getScoreShouldReturnZeroScoreWhenExceptionIsCaught() throws IOException {
+        String path = "/some/path/to/a/file";
+        String[] args = {path};
+
+        when(uploadService.uploadRecords(path)).thenThrow(new IOException());
+
+        final int result = nameScore.getScore(args);
+
+        assertThat(result).isEqualTo(0);
+    }
 }

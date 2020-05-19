@@ -7,12 +7,13 @@ import java.util.stream.IntStream;
 public class CharacterValueScoringService implements ScoringService {
 
   private static final int CHARACTER_OFFSET = 64;
+  private static final int NAME_LIST_OFFSET = 1;
 
   /**
    * Calculates the score for all names in the list and returns the total sum
    *
    * @param names A mutable List of names. The names List will be sorted alphabetically.
-   * @return The sum of all name scores in the names List
+   * @return An int representing the final score for the given list of names.
    */
   @Override
   public int calculateScore(List<String> names) {
@@ -20,7 +21,7 @@ public class CharacterValueScoringService implements ScoringService {
     String[] namesArray = names.toArray(new String[0]);
 
     int sum = IntStream.range(0, names.size())
-        .mapToObj(i -> calculateNameScore(namesArray[i], i+1))
+        .mapToObj(i -> calculateNameScore(namesArray[i], i + NAME_LIST_OFFSET))
         .mapToInt(i -> i.intValue())
         .sum();
 
@@ -39,11 +40,16 @@ public class CharacterValueScoringService implements ScoringService {
    * character for the result. Only uppercase Latin Unicode characters are counted in the score.
    * Any character outside the range A (65) through Z (90) inclusive will not be included in the score.
    *
-   * @param name
-   * @return The sum of all characters in the name multiplied by it's position modifier
+   * @param name The name to calculate the score of
+   * @param position the name parameters index in the names List.
+   * @return An int representing the score for one name.
    */
-  int calculateNameScore(final String name, int position) {
-    int sum = name.chars().map(c -> c >= 65 && c <= 90 ? c - CHARACTER_OFFSET : 0).sum();
+  int calculateNameScore(final String name, final int position) {
+    int sum = name
+            .chars()
+            .map(c -> c >= 65 && c <= 90 ? c - CHARACTER_OFFSET : 0)
+            .sum();
+
     int score = sum * position;
 
     return score;

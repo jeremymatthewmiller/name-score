@@ -14,11 +14,11 @@ import java.util.List;
 
 public class NameScore {
 
-    private ScoringService scoringService;
+    private final ScoringService scoringService;
 
-    private UploadService uploadService;
+    private final UploadService uploadService;
 
-    public NameScore(ScoringService scoringService, UploadService uploadService) {
+    public NameScore(final ScoringService scoringService, final UploadService uploadService) {
         this.scoringService = scoringService;
         this.uploadService = uploadService;
     }
@@ -29,7 +29,7 @@ public class NameScore {
         System.out.println("Score: " + nameScore.getScore(args));
     }
 
-    int getScore(String[] args) {
+    int getScore(final String[] args) {
         int score = 0;
         try {
             Reader fileReader = uploadService.uploadRecords(args.length > 0 ? args[0] : "");

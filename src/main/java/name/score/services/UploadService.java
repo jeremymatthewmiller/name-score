@@ -19,7 +19,7 @@ public abstract class UploadService {
    * @return A List of names
    * @throws IOException
    */
-  public List<String> parseNameFile(Reader reader) throws IOException {
+  public List<String> parseNameFile(final Reader reader) throws IOException {
     StreamTokenizer streamTokenizer = new StreamTokenizer(reader);
     List<String> tokens = new ArrayList<>();
 
