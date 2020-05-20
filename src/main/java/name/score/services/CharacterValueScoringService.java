@@ -18,10 +18,9 @@ public class CharacterValueScoringService implements ScoringService {
   @Override
   public int calculateScore(List<String> names) {
     Collections.sort(names);
-    String[] namesArray = names.toArray(new String[0]);
 
     int sum = IntStream.range(0, names.size())
-        .mapToObj(i -> calculateNameScore(namesArray[i], i + NAME_LIST_OFFSET))
+        .mapToObj(i -> calculateNameScore(names.get(i), i + NAME_LIST_OFFSET))
         .mapToInt(i -> i.intValue())
         .sum();
 
